@@ -8,18 +8,29 @@ def emforce(q1,r1,q2,r2):
     F = (8.987552e+9)*q1*q2*pow(distance,-3)*(r1-r2)
     return F
 
-class charge:
+class PointCharge:
     pass
 
 #k = 8.987552e+9
 k = 9.0e+9
-init = [0.0,1.0,0.0,0.0] #(x位置,y位置,x速度,y速度)の初期条件
+x = 0.0
+y = 1.0
+vx = 0.0
+vy = 0.0
+q = 1.0
+
+xa = -1.0
+ya = 0.0
+qa = 1.0e-5
+
+xb = 1.0
+yb = 0.0
+qb = 1.0e-5
+
+init = [x,y,vx,vy] #(x位置,y位置,x速度,y速度)の初期条件
 t_span = [0.0,15.0]
 t_eval = np.linspace(*t_span,3000)
 
-def equationpv(pv,t):
-    ret = [pv[1],emforce(1e-5,pv[0],1e-5,1+0j)+emforce(1e-5,pv[0],-1e-5,-1+0j)]
-    return ret
 
 def equation(t,X):
     x,y,vx,vy = X
@@ -27,7 +38,7 @@ def equation(t,X):
     da = da**1.5
     db = (x+1)**2+y**2
     db = db**1.5
-    return [vx,vy,k*(1e-10)*((x-1)/da-(x+1)/db),k*(1e-10)*y*(1/da-1/db)]
+    return [vx,vy,k*q*(qa*(x-1)/da-qb*(x+1)/db),k*q*y*(qa/da-qb/db)]
 
 sol = solve_ivp(equation,t_span,init,method='RK45',t_eval=t_eval)
 fig,ax = plt.subplots()
@@ -35,8 +46,8 @@ ax.set_xlim(-3.0,3.0)
 ax.set_ylim(-3.0,3.0)
 ax.set_aspect('equal')
 
-ax.plot(-1.0,0.0,'o')
-ax.plot(1.0,0.0,'o')
+ax.plot(xa,ya,'o')
+ax.plot(xb,yb,'o')
 point, = ax.plot([],[],'^')
 def update_anim(frame_num):
     point.set_data(sol.y[0,frame_num],sol.y[1,frame_num]) 
